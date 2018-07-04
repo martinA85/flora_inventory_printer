@@ -1,0 +1,117 @@
+<odoo>
+  <data>
+
+    <record id="action_report_stock_valuation" model="ir.actions.act_window">
+      <field name="name">Rapport Stock</field>
+      <field name="res_model">report.stock_valuation_flora</field>
+      <field name="view_mode">form</field>
+      <field name="tager">new</field>
+    </record>
+
+    <act_window 
+      id="action_report_inventory_flora"
+      name="Impression Inventaire détaillé"
+      res_model="report.stock_valuation_flora"
+      src_model="stock.inventory"
+      view_mode="form"
+      target="new"/>
+
+    <record id="stock_valuation_report" model="ir.actions.report">
+      <field name="name">Rapport Stock</field>
+      <field name="model">report.stock_printer.report_stock_valuation</field>
+      <field name="report_type">qweb-pdf</field>
+      <field name="report_name">stock_printer.report_stock_valuation</field>
+    </record>
+
+    <!-- flora.stock_valuation.report form view -->
+    <record id="model_name_view_form" model="ir.ui.view">
+      <field name="name">flora.stock_valuation.report.view.form</field>
+      <field name="model">report.stock_valuation_flora</field>
+      <field name="arch" type="xml">
+        <form string="">
+          <sheet>
+            <group>
+              
+            </group>
+            <footer>
+                <button name="generate_report" type="object"
+                        string="Imprimer" class="oe_highlight"/>
+                or
+                <button special="cancel" string="Annuler"/>
+            </footer>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <template id="report_stock_valuation">
+        <t t-call="web.html_container">
+            <t t-call="web.internal_layout">
+                <div class="page">
+                  <h2>Etat des stock par produit :</h2>
+                  <!-- <span t-esc="data" /> -->
+                  <table style="border-spacing:0;margin-bottom:0;" class="table">
+                    <thead>
+                      <tr>
+                        <th>Référence</th>
+                        <th>Nom</th>
+                        <th>Prix</th>
+                        <th>Cout</th>
+                        <th>Categories</th>
+                        <th>Qte disponible</th>
+                        <th>Valeur</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <t t-foreach="product_ids" t-as="product">
+                          <tr>
+                            <td style="line-height:1px"><small><span t-esc="product.default_code" /></small></td>
+                            <td style="line-height:1px"><small><span t-esc="product.name" /></small></td>
+                            <td style="line-height:1px"><small><span t-esc="round(product.lst_price,2)"/></small></td>
+                            <td style="line-height:1px"><small><span t-esc="round(product.standard_price,2)" /></small></td>
+                            <td style="line-height:1px"><small><span t-esc="product.categ_id.name" /></small></td>
+                            <td style="line-height:1px"><small><span t-esc="product.qty_available" /></small></td>
+                            <t t-set="value" t-value="product.standard_price * product.qty_available" />
+                            <td style="line-height:1px"><small><span t-esc="round(value,2)" /></small></td>
+                          </tr>
+                      </t>
+                    </tbody>
+                </table>
+
+                <h2>Etat des stock par catégories :</h2>
+                <table style="border-spacing:0;margin-bottom:0;" class="table">
+                  <thead>
+                    <tr>
+                      <th>Catégories</th>
+                      <th>Valeurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <t t-foreach="categ_value" t-as="categ">
+                      <tr>
+                          <td style="line-height:1px"><small><span t-esc="categ['name']" /></small></td>
+                          <td style="line-height:1px"><small><span t-esc="round(categ['value'],2)" /> €</small></td>
+                        </tr>
+                    </t>
+                  </tbody>
+                </table>
+
+                <h2>TOTAL :</h2>
+                <table style="border-spacing:0;margin-bottom:0;" class="table">
+                  <tbody>
+                      <tr>
+                        <td style="line-height:1px"><small>TOTAL : </small></td>
+                        <td style="line-height:1px"><small><span t-esc="round(total,2)" /> €</small></td>
+                      </tr>
+                  </tbody>
+                </table>
+              </div>
+            </t>
+          </t>
+        </template>
+
+    <menuitem id="stock_valuation_report_menu" name="Rapport Stock" action="action_report_stock_valuation" parent="stock.menu_warehouse_report" sequence="4"/>
+  </data>
+</odoo>
+
+
